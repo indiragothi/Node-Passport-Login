@@ -7,10 +7,10 @@ const User = require('../models/User');
 const { forwardAuthenticated } = require('../config/auth');
 
 // Login Page
-router.get('/login', forwardAuthenticated, (req, res) => res.render('login'));
+router.get('/login', (req, res) => res.render('login'));
 
 // Register Page
-router.get('/register', forwardAuthenticated, (req, res) => res.render('register'));
+router.get('/register', forwardAuthenticated,  (req, res) => res.render('register'));
 
 // Register
 router.post('/register', (req, res) => {
@@ -49,7 +49,7 @@ router.post('/register', (req, res) => {
           password2
         });
       } else {
-        const newUser = User.create({
+        const newUser = new User({
           name,
           email,
           password
@@ -72,7 +72,6 @@ router.post('/register', (req, res) => {
               .catch(err => console.log(err));
           });
         });
-        res.redirect('/users/login');
       }
     });
   }
@@ -88,9 +87,11 @@ router.post('/login', (req, res, next) => {
 });
 
 // Logout
-router.get('/logout', (req, res) => {
-  req.logout();
-  req.flash('success_msg', 'You are logged out');
+router.get('/logout', (req, res, next) => {
+  req.logout(function(err) {
+    if (err) { return next(err); }
+  }); 
+  req.flash('success_msg', 'You are logged out')
   res.redirect('/users/login');
 });
 
